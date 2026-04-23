@@ -26,6 +26,22 @@ const commands = [
       .setDescription('배팅 금액')
       .setRequired(true)
   ),
+  new SlashCommandBuilder()
+  .setName('송금')
+  .setDescription('다른 유저에게 돈을 보냅니다')
+  .addUserOption(option =>
+    option.setName('유저')
+      .setDescription('송금할 대상')
+      .setRequired(true)
+  )
+  .addIntegerOption(option =>
+    option.setName('금액')
+      .setDescription('송금할 금액')
+      .setRequired(true)
+  ),
+  new SlashCommandBuilder()
+  .setName('랭킹')
+  .setDescription('서버 돈 랭킹을 확인합니다'),
   new SlashCommandBuilder().setName('잔액').setDescription('현재 돈을 확인합니다')
 ].map(cmd => cmd.toJSON());
 
