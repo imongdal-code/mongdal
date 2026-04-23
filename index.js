@@ -35,56 +35,97 @@ client.once('clientReady', () => {
 client.on('interactionCreate', async interaction => {
 
   // =========================
-  // 🔹 1. 버튼 처리 먼저
+  // 🔹 1. 버튼 처리
   // =========================
   if (interaction.isButton()) {
     await interaction.deferUpdate();
 
     const data = interaction.customId.split('_');
 
+    // 🎰 도박
     if (data[0] === 'gamble') {
       const userId = data[1];
       const bet = parseInt(data[2]);
       const winChance = parseFloat(data[3]);
 
       if (interaction.user.id !== userId) {
-        return interaction.followUp({ content: '❌ 본인만 사용할 수 있습니다!', ephemeral: true });
+        return interaction.followUp({ content: '❌ 본인만 사용 가능!', ephemeral: true });
       }
 
       let user = await User.findOne({ userId });
-
-      if (!user) {
-        user = new User({ userId });
-      }
+      if (!user) user = new User({ userId });
 
       if (user.balance < bet) {
-        return interaction.editReply({ content: '❌ 돈이 부족합니다!', components: [] });
+        return interaction.editReply({ content: '❌ 돈 부족!', components: [] });
       }
 
       const win = Math.random() < winChance;
 
-      if (win) {
-        user.balance += bet;
-      } else {
-        user.balance -= bet;
-      }
+      if (win) user.balance += bet;
+      else user.balance -= bet;
 
       await user.save();
 
       return interaction.editReply({
         content: win
-          ? `🎉 승리! (+${bet})\n현재 돈: ${user.balance}원`
-          : `💀 패배... (-${bet})\n현재 돈: ${user.balance}원`,
+          ? `🎉 승리! (+${bet})\n💰 ${user.balance}원`
+          : `💀 패배... (-${bet})\n💰 ${user.balance}원`,
+        components: []
+      });
+    }
+
+    // 🎟 복권
+    if (data[0] === 'lottery') {
+      const userId = data[1];
+      const bet = parseInt(data[2]);
+
+      if (interaction.user.id !== userId) {
+        return interaction.followUp({ content: '❌ 본인만 사용 가능!', ephemeral: true });
+      }
+
+      let user = await User.findOne({ userId });
+      if (!user) user = new User({ userId });
+
+      if (user.balance < bet) {
+        return interaction.editReply({ content: '❌ 돈 부족!', components: [] });
+      }
+
+      user.balance -= bet;
+
+      const symbols = ['🍒', '🍋', '🍇', '💎', '7️⃣', '⭐'];
+      const pick = () => symbols[Math.floor(Math.random() * symbols.length)];
+
+      const s1 = pick();
+      const s2 = pick();
+      const s3 = pick();
+
+      const result = `${s1} | ${s2} | ${s3}`;
+
+      let multiplier = 0;
+
+      if (s1 === s2 && s2 === s3) {
+        if (s1 === '⭐') multiplier = 4;
+        else if (s1 === '7️⃣') multiplier = 3;
+        else if (s1 === '💎') multiplier = 2;
+      }
+
+      const reward = bet * multiplier;
+      user.balance += reward;
+
+      await user.save();
+
+      return interaction.editReply({
+        content: multiplier > 0
+          ? `🎰 ${result}\n🎉 ${multiplier}배 당첨! +${reward}원\n💰 ${user.balance}원`
+          : `🎰 ${result}\n💀 꽝... -${bet}원\n💰 ${user.balance}원`,
         components: []
       });
     }
   }
 
   // =========================
-  // 🔹 2. 슬래시 명령어 처리
+  // 🔹 2. 슬래시 명령어
   // =========================
-  client.on('interactionCreate', async interaction => {
-
   if (!interaction.isChatInputCommand()) return;
 
   const userId = interaction.user.id;
@@ -105,39 +146,34 @@ client.on('interactionCreate', async interaction => {
     const today = new Date().toLocaleDateString();
 
     if (user.lastClaim === today) {
-      return interaction.reply('⏳ 오늘은 이미 받았어요!');
+      return interaction.reply('⏳ 이미 받음');
     }
 
     user.balance += 100000;
     user.lastClaim = today;
     await user.save();
 
-    return interaction.reply('💰 100000원을 지급했습니다!');
+    return interaction.reply('💰 100000원 지급!');
   }
 
   // 🎰 도박
   if (interaction.commandName === '도박') {
     const bet = interaction.options.getInteger('금액');
 
-    if (bet <= 0) {
-      return interaction.reply('❌ 1원 이상 배팅해야 합니다!');
-    }
-
-    if (user.balance < bet) {
-      return interaction.reply('❌ 돈이 부족합니다!');
-    }
+    if (bet <= 0) return interaction.reply('❌ 1원 이상');
+    if (user.balance < bet) return interaction.reply('❌ 돈 부족');
 
     const winChance = Math.random() * 0.5 + 0.3;
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId(`gamble_${userId}_${bet}_${winChance}`)
-        .setLabel('🎰 도박 시작')
+        .setLabel('🎰 도박')
         .setStyle(ButtonStyle.Primary)
     );
 
     return interaction.reply({
-      content: `🎲 성공 확률: ${(winChance * 100).toFixed(1)}%\n💰 배팅: ${bet}원`,
+      content: `🎲 ${(winChance * 100).toFixed(1)}%\n💰 ${bet}원`,
       components: [row]
     });
   }
@@ -146,55 +182,97 @@ client.on('interactionCreate', async interaction => {
   if (interaction.commandName === '주사위') {
     const bet = interaction.options.getInteger('금액');
 
-    if (bet <= 0) {
-      return interaction.reply('❌ 1원 이상 배팅해야 합니다!');
-    }
-
-    if (user.balance < bet) {
-      return interaction.reply('❌ 돈이 부족합니다!');
-    }
+    if (bet <= 0) return interaction.reply('❌ 1원 이상');
+    if (user.balance < bet) return interaction.reply('❌ 돈 부족');
 
     const dice = Math.floor(Math.random() * 6) + 1;
 
     if (dice >= 4) {
       user.balance += bet;
       await user.save();
-
-      return interaction.reply(`🎲 ${dice} → 🎉 승리! +${bet}원 (현재 ${user.balance}원)`);
+      return interaction.reply(`🎲 ${dice} → 🎉 +${bet}`);
     } else {
       user.balance -= bet;
       await user.save();
-
-      return interaction.reply(`🎲 ${dice} → 💀 패배... -${bet}원 (현재 ${user.balance}원)`);
+      return interaction.reply(`🎲 ${dice} → 💀 -${bet}`);
     }
   }
 
-  // 🎟 복권 (버튼)
+  // 🎟 복권
   if (interaction.commandName === '복권') {
     const bet = interaction.options.getInteger('금액');
 
-    if (bet <= 0) {
-      return interaction.reply('❌ 1원 이상 입력하세요!');
-    }
-
-    if (user.balance < bet) {
-      return interaction.reply('❌ 돈이 부족합니다!');
-    }
+    if (bet <= 0) return interaction.reply('❌ 1원 이상');
+    if (user.balance < bet) return interaction.reply('❌ 돈 부족');
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId(`lottery_${userId}_${bet}`)
-        .setLabel('🎰 복권 뽑기')
+        .setLabel('🎟 복권')
         .setStyle(ButtonStyle.Primary)
     );
 
     return interaction.reply({
-      content: `🎟 복권 구매 완료!\n💰 배팅: ${bet}원\n👉 버튼을 눌러 결과 확인!`,
+      content: `🎟 복권 구매\n💰 ${bet}원`,
       components: [row]
     });
   }
 
-}); // ✅ 이벤트 끝
+  // 💸 송금
+  if (interaction.commandName === '송금') {
+    const target = interaction.options.getUser('유저');
+    const amount = interaction.options.getInteger('금액');
 
-// ✅ 이건 무조건 파일 맨 아래
+    if (target.id === interaction.user.id) {
+      return interaction.reply('❌ 자기 자신에게 보낼 수 없습니다!');
+    }
+
+    if (amount <= 0) {
+      return interaction.reply('❌ 1원 이상 입력하세요!');
+    }
+
+    if (user.balance < amount) {
+      return interaction.reply('❌ 돈이 부족합니다!');
+    }
+
+    let targetUser = await User.findOne({ userId: target.id });
+    if (!targetUser) targetUser = new User({ userId: target.id });
+
+    user.balance -= amount;
+    targetUser.balance += amount;
+
+    await user.save();
+    await targetUser.save();
+
+    return interaction.reply(
+      `💸 ${target.username}님에게 ${amount}원 송금 완료!\n💰 내 잔액: ${user.balance}원`
+    );
+  }
+
+  // 🏆 랭킹
+  if (interaction.commandName === '랭킹') {
+    const topUsers = await User.find().sort({ balance: -1 }).limit(10);
+
+    let msg = '🏆 돈 랭킹 TOP 10\n\n';
+
+    for (let i = 0; i < topUsers.length; i++) {
+      const u = topUsers[i];
+
+      let name = '알 수 없음';
+      try {
+        const userObj = await client.users.fetch(u.userId);
+        name = userObj.username;
+      } catch {}
+
+      const medal = ['🥇', '🥈', '🥉'][i] || '';
+
+      msg += `${i + 1}위 ${medal} ${name} - ${u.balance}원\n`;
+    }
+
+    return interaction.reply(msg);
+  }
+
+});
+
+// ✅ 반드시 마지막
 client.login(process.env.TOKEN);
