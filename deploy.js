@@ -53,7 +53,14 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
     console.log('슬래시 명령어 등록 중...');
 
     await rest.put(
-      Routes.applicationCommands(process.env.CLIENT_ID,process.env.GUILD_ID), // ⭐ 이걸로 바꿔
+  Routes.applicationCommands(process.env.CLIENT_ID),
+  { body: [] } // 글로벌 명령어 삭제
+);
+
+    await rest.put(
+      Routes.applicationGuildCommands(
+  process.env.CLIENT_ID,
+  process.env.GUILD_ID),
       { body: commands }
     );
 
