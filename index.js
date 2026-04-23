@@ -225,16 +225,36 @@ client.on('interactionCreate', async interaction => {
 
 // ===== 웹서버 (Render 유지용) =====
 const app = express();
+
 app.get('/', (req, res) => res.send('봇이 정상 작동 중입니다.'));
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🌐 웹서버 실행됨 (포트: ${PORT})`));
+
+// 🔍 TOKEN 확인
+console.log("TOKEN 길이:", process.env.TOKEN?.length);
 
 // ✅ 디스코드 로그인
 if (!process.env.TOKEN) {
   console.error("❌ TOKEN 환경변수가 없습니다.");
 } else {
   console.log("🚀 디스코드 로그인 시도 중...");
+
   client.login(process.env.TOKEN)
     .then(() => console.log('✅ 디스코드 연결 성공!'))
     .catch(err => console.error('❌ 디스코드 로그인 실패:', err));
 }
+
+// 🔥 로그인 성공 이벤트
+client.on('ready', () => {
+  console.log(`✅ 봇 로그인 완료: ${client.user.tag}`);
+});
+
+// 🔥 에러 확인용
+client.on('error', (err) => {
+  console.error('❌ 클라이언트 에러:', err);
+});
+
+client.on('shardError', (err) => {
+  console.error('❌ 샤드 에러:', err);
+});
