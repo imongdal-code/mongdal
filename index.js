@@ -279,5 +279,18 @@ client.on('interactionCreate', async interaction => {
 
 });
 
-// ✅ 반드시 마지막
+// 디스코드 봇 로그인
 client.login(process.env.TOKEN);
+
+// ===== 웹서버 (Render 유지용) =====
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('봇 살아있음');
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`웹서버 실행됨 ${PORT}`);
+});
