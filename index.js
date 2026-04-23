@@ -243,12 +243,5 @@ client.on('shardError', (err) => {
   console.error('❌ 샤드 에러:', err);
 });
 
-if (!process.env.TOKEN) {
-  console.error("❌ TOKEN 환경변수가 없습니다.");
-} else {
-  console.log("🚀 디스코드 로그인 시도 중...");
 
-  client.login(process.env.TOKEN)
-    .then(() => console.log('✅ 디스코드 연결 성공!'))
-    .catch(err => console.error('❌ 디스코드 로그인 실패:', err));
-}
+client.login(process.env.TOKEN);
