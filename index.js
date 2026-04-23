@@ -274,7 +274,7 @@ client.on('interactionCreate', async interaction => {
       msg += `${i + 1}위 ${medal} ${name} - ${u.balance}원\n`;
     }
 
-    return interaction.reply(msg);
+    return interaction.editReply(msg);
   }
 
 });
@@ -291,6 +291,8 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`웹서버 실행됨 ${PORT}`);
 });
+
+console.log("로그인 시도");
 
 // ✅ 디스코드 로그인 (맨 마지막)
 client.login(process.env.TOKEN)
