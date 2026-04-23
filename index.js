@@ -27,7 +27,7 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-client.once('clientReady', () => {
+client.once('ready', () => {
   console.log(`로그인됨: ${client.user.tag}`);
 });
 
@@ -158,7 +158,7 @@ client.on('interactionCreate', async interaction => {
 
   // 🎰 도박
   if (interaction.commandName === '도박') {
-    await interaction.deferReply();
+    await interaction.editReply();
     const bet = interaction.options.getInteger('금액');
 
     if (bet <= 0) return interaction.reply('❌ 1원 이상');
@@ -181,7 +181,7 @@ client.on('interactionCreate', async interaction => {
 
   // 🎲 주사위
   if (interaction.commandName === '주사위') {
-    await interaction.deferReply();
+    await interaction.editReply();
     const bet = interaction.options.getInteger('금액');
 
     if (bet <= 0) return interaction.reply('❌ 1원 이상');
@@ -202,7 +202,7 @@ client.on('interactionCreate', async interaction => {
 
   // 🎟 복권
   if (interaction.commandName === '복권') {
-    await interaction.deferReply();
+    await interaction.editReply();
     const bet = interaction.options.getInteger('금액');
 
     if (bet <= 0) return interaction.reply('❌ 1원 이상');
@@ -223,7 +223,7 @@ client.on('interactionCreate', async interaction => {
 
   // 💸 송금
   if (interaction.commandName === '송금') {
-    await interaction.deferReply();
+    await interaction.editReply();
     const target = interaction.options.getUser('유저');
     const amount = interaction.options.getInteger('금액');
 
@@ -255,7 +255,7 @@ client.on('interactionCreate', async interaction => {
 
   // 🏆 랭킹
   if (interaction.commandName === '랭킹') {
-    await interaction.deferReply();
+    await interaction.editReply();
     const topUsers = await User.find().sort({ balance: -1 }).limit(10);
 
     let msg = '🏆 돈 랭킹 TOP 10\n\n';
