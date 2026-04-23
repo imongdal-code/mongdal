@@ -279,9 +279,6 @@ client.on('interactionCreate', async interaction => {
 
 });
 
-// 디스코드 봇 로그인
-client.login(process.env.TOKEN);
-
 // ===== 웹서버 (Render 유지용) =====
 const express = require('express');
 const app = express();
@@ -294,3 +291,8 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`웹서버 실행됨 ${PORT}`);
 });
+
+// ✅ 디스코드 로그인 (맨 마지막)
+client.login(process.env.TOKEN)
+  .then(() => console.log('디코 로그인 성공'))
+  .catch(err => console.error('디코 로그인 실패:', err));
