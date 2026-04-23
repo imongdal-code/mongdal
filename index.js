@@ -1,4 +1,3 @@
-require('dotenv').config();
 
 const { 
   Client, 
@@ -84,6 +83,8 @@ client.on('interactionCreate', async interaction => {
   // =========================
   // 🔹 2. 슬래시 명령어 처리
   // =========================
+  client.on('interactionCreate', async interaction => {
+
   if (!interaction.isChatInputCommand()) return;
 
   const userId = interaction.user.id;
@@ -114,7 +115,7 @@ client.on('interactionCreate', async interaction => {
     return interaction.reply('💰 100000원을 지급했습니다!');
   }
 
-  // 🎰 도박 (버튼 생성)
+  // 🎰 도박
   if (interaction.commandName === '도박') {
     const bet = interaction.options.getInteger('금액');
 
@@ -143,63 +144,57 @@ client.on('interactionCreate', async interaction => {
 
   // 🎲 주사위
   if (interaction.commandName === '주사위') {
-  let user = await User.findOne({ userId });
+    const bet = interaction.options.getInteger('금액');
 
-  if (!user) {
-    user = new User({ userId });
-  }
+    if (bet <= 0) {
+      return interaction.reply('❌ 1원 이상 배팅해야 합니다!');
+    }
 
-  const bet = interaction.options.getInteger('금액');
-
-  // ❌ 잘못된 금액
-  if (bet <= 0) {
-    return interaction.reply('❌ 1원 이상 배팅해야 합니다!');
-  }
-
-  // ❌ 돈 부족
-  if (user.balance < bet) {
-    return interaction.reply('❌ 돈이 부족합니다!');
-  }
-
-  const dice = Math.floor(Math.random() * 6) + 1;
-
-  // 🎯 승리 조건 (4 이상)
-  if (dice >= 4) {
-    user.balance += bet; // 순이익 +bet (총 2배 효과)
-    await user.save();
-
-    return interaction.reply(`🎲 ${dice} → 🎉 승리! +${bet}원 (현재 ${user.balance}원)`);
-  } else {
-    user.balance -= bet;
-    await user.save();
-
-    return interaction.reply(`🎲 ${dice} → 💀 패배... -${bet}원 (현재 ${user.balance}원)`);
-  }
-}
-
-  // 🎟 복권
-  if (interaction.commandName === '복권') {
-    const cost = 200;
-
-    if (user.balance < cost) {
+    if (user.balance < bet) {
       return interaction.reply('❌ 돈이 부족합니다!');
     }
 
-    user.balance -= cost;
+    const dice = Math.floor(Math.random() * 6) + 1;
 
-    const chance = Math.random();
-    let reward = 0;
+    if (dice >= 4) {
+      user.balance += bet;
+      await user.save();
 
-    if (chance < 0.5) reward = 0;
-    else if (chance < 0.8) reward = 500;
-    else if (chance < 0.95) reward = 1000;
-    else reward = 5000;
+      return interaction.reply(`🎲 ${dice} → 🎉 승리! +${bet}원 (현재 ${user.balance}원)`);
+    } else {
+      user.balance -= bet;
+      await user.save();
 
-    user.balance += reward;
-    await user.save();
-
-    return interaction.reply(`🎟 결과: ${reward}원 당첨! (현재 ${user.balance}원)`);
+      return interaction.reply(`🎲 ${dice} → 💀 패배... -${bet}원 (현재 ${user.balance}원)`);
+    }
   }
-});
 
+  // 🎟 복권 (버튼)
+  if (interaction.commandName === '복권') {
+    const bet = interaction.options.getInteger('금액');
+
+    if (bet <= 0) {
+      return interaction.reply('❌ 1원 이상 입력하세요!');
+    }
+
+    if (user.balance < bet) {
+      return interaction.reply('❌ 돈이 부족합니다!');
+    }
+
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`lottery_${userId}_${bet}`)
+        .setLabel('🎰 복권 뽑기')
+        .setStyle(ButtonStyle.Primary)
+    );
+
+    return interaction.reply({
+      content: `🎟 복권 구매 완료!\n💰 배팅: ${bet}원\n👉 버튼을 눌러 결과 확인!`,
+      components: [row]
+    });
+  }
+
+}); // ✅ 이벤트 끝
+
+// ✅ 이건 무조건 파일 맨 아래
 client.login(process.env.TOKEN);

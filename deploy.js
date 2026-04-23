@@ -18,7 +18,14 @@ const commands = [
       .setRequired(true)
   ),
   new SlashCommandBuilder().setName('돈줘').setDescription('게임을 하기 위한 돈을 받습니다'),
-  new SlashCommandBuilder().setName('복권').setDescription('복권에 당첨되시면 돈을 드립니다'),
+  new SlashCommandBuilder()
+  .setName('복권')
+  .setDescription('복권 도박을 합니다')
+  .addIntegerOption(option =>
+    option.setName('금액')
+      .setDescription('배팅 금액')
+      .setRequired(true)
+  ),
   new SlashCommandBuilder().setName('잔액').setDescription('현재 돈을 확인합니다')
 ].map(cmd => cmd.toJSON());
 
@@ -29,7 +36,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
     console.log('슬래시 명령어 등록 중...');
 
     await rest.put(
-      Routes.applicationCommands(process.env.CLIENT_ID), // ⭐ 이걸로 바꿔
+      Routes.applicationCommands(process.env.CLIENT_ID,process.env.GUILD_ID), // ⭐ 이걸로 바꿔
       { body: commands }
     );
 
