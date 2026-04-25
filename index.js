@@ -41,11 +41,21 @@ client.on('interactionCreate', async interaction => {
   // 🔹 1. 버튼 처리 (도박/복권 결과창)
   // =========================
   if (interaction.isButton()) {
-  await interaction.deferUpdate();
+   if (!interaction.deferred && !interaction.replied) {
+    await interaction.deferUpdate().catch(() => {});
+  }
 
-  const data = interaction.customId.split('_');
-  const commandType = data[0];
+  try {
+    const data = interaction.customId.split('_');
+    const type = data[0];
 
+    // 로직 처리
+    return interaction.editReply("✅ 처리 완료").catch(() => {});
+
+  } catch (err) {
+    return interaction.editReply("❌ 오류 발생").catch(() => {});
+  }
+}
   // =========================
   // 🎰 도박
   // =========================
