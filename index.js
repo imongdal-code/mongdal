@@ -72,29 +72,15 @@ client.on('interactionCreate', async interaction => {
     }
     // 가위바위보
    if (data[0] === 'rps') {
-  await interaction.deferUpdate();
 
   const choice = data[1];
-  const userId = String(data[2]); // 🔥 문자열 보장
+  const userId = data[2];
   const bet = parseInt(data[3]);
 
-  // 🔥 값 검증 (이거 중요)
-  if (!choice || !userId || isNaN(bet)) {
-    return interaction.editReply({
-      content: '❌ 잘못된 게임 데이터입니다.',
-      components: []
-    });
-  }
-
-  // 🔥 디버그
-  console.log("누른 사람:", interaction.user.id);
-  console.log("버튼 주인:", userId);
-
-  // 🔥 본인 체크 (더 안전하게)
   if (interaction.user.id !== userId) {
     return interaction.reply({
       content: '❌ 본인만 사용 가능!',
-      flags: 64 // ephemeral 최신 방식
+      flags: 64
     });
   }
 
@@ -102,9 +88,9 @@ client.on('interactionCreate', async interaction => {
   if (!user) user = new User({ userId });
 
   if (user.balance < bet) {
-    return interaction.editReply({
+    return interaction.reply({
       content: '❌ 돈 부족!',
-      components: []
+      flags: 64
     });
   }
 
@@ -116,14 +102,13 @@ client.on('interactionCreate', async interaction => {
 
   if (choice === botChoice) {
     result = '🤝 무승부!';
-    reward = 0;
   } else if (
     (choice === '가위' && botChoice === '보') ||
     (choice === '바위' && botChoice === '가위') ||
     (choice === '보' && botChoice === '바위')
   ) {
     result = '🎉 승리!';
-    reward = bet; // 👉 순이익 = +bet (총 2배 효과)
+    reward = bet;
   } else {
     result = '💀 패배!';
     reward = -bet;
@@ -132,9 +117,9 @@ client.on('interactionCreate', async interaction => {
   user.balance += reward;
   await user.save();
 
-  return interaction.editReply({
+  return interaction.update({
     content:
-      `👤 너: ${choice}\n🤖 봇: ${botChoice}\n\n${result}\n💰 ${reward >= 0 ? '+' : ''}${reward}원\n현재 잔액: ${user.balance}원`,
+      `👤 ${choice} vs 🤖 ${botChoice}\n${result}\n💰 ${reward >= 0 ? '+' : ''}${reward}원\n잔액: ${user.balance}`,
     components: []
   });
 }
