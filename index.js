@@ -212,7 +212,7 @@ if (chance < 0.4) {
 
    // 💸 돈 지급 (나만 가능)
 if (interaction.commandName === '돈지급') {
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: 64 });
 
   const OWNER_ID = process.env.OWNER_ID;
 
