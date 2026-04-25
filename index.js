@@ -38,178 +38,156 @@ client.once('ready', () => {
 client.on('interactionCreate', async interaction => {
 
   // =========================
-  // 🔹 1. 버튼 처리 (도박/복권 결과창)
+  // 🔹 버튼 처리
   // =========================
   if (interaction.isButton()) {
-   if (!interaction.deferred && !interaction.replied) {
-    await interaction.deferUpdate().catch(() => {});
-  }
-
-    const data = interaction.customId.split('_');
-    const commandType = data[0];
-
-  // =========================
-  // 🎰 도박
-  // =========================
-  if (commandType === 'gamble') {
-    const userId = data[1];
-    const bet = parseInt(data[2]);
-    const winChance = parseFloat(data[3]);
-
-    if (interaction.user.id !== userId) {
-      return interaction.followUp({
-        content: '❌ 본인의 게임 버튼만 누를 수 있습니다!',
-        flags: 64
-      });
-    }
-
-    let user = await User.findOne({ userId });
-    if (!user) user = new User({ userId });
-
-    if (user.balance < bet) {
-      return interaction.editReply({
-        content: '❌ 돈이 부족합니다!',
-        components: []
-      });
-    }
-
-    const win = Math.random() < winChance;
-    user.balance += win ? bet : -bet;
-    await user.save();
-
-    return interaction.editReply({
-      content: win
-        ? `🎉 승리! (+${bet}원)\n💰 현재 잔액: ${user.balance}원`
-        : `💀 패배... (-${bet}원)\n💰 현재 잔액: ${user.balance}원`,
-      components: []
-    });
-  }
-
-  // =========================
-  // ✌️ 가위바위보
-  // =========================
-  if (commandType === 'rps') {
-    const choice = data[1];
-    const userId = data[2];
-    const bet = parseInt(data[3]);
-
-    if (interaction.user.id !== userId) {
-      return interaction.followUp({
-        content: '❌ 본인만 사용 가능!',
-        flags: 64
-      });
-    }
-
-    let user = await User.findOne({ userId });
-    if (!user) user = new User({ userId });
-
-    if (user.balance < bet) {
-      return interaction.editReply({
-        content: '❌ 돈 부족!',
-        components: []
-      });
-    }
-
-    const choices = ['가위', '바위', '보'];
-    const botChoice = choices[Math.floor(Math.random() * 3)];
-
-    let result = '';
-    let reward = 0;
-
-    if (choice === botChoice) {
-      result = '🤝 무승부!';
-    } else if (
-      (choice === '가위' && botChoice === '보') ||
-      (choice === '바위' && botChoice === '가위') ||
-      (choice === '보' && botChoice === '바위')
-    ) {
-      result = '🎉 승리!';
-      reward = bet;
-    } else {
-      result = '💀 패배!';
-      reward = -bet;
-    }
-
-    user.balance += reward;
-    await user.save();
-
-    return interaction.editReply({
-      content:
-        `👤 ${choice} vs 🤖 ${botChoice}\n${result}\n💰 ${reward >= 0 ? '+' : ''}${reward}원\n잔액: ${user.balance}`,
-      components: []
-    });
-  }
-
-  // =========================
-  // 🎟 복권
-  // =========================
-  if (commandType === 'lottery') {
-    const userId = data[1];
-    const bet = parseInt(data[2]);
-
-    if (interaction.user.id !== userId) {
-      return interaction.followUp({
-        content: '❌ 본인만 사용 가능!',
-        flags: 64
-      });
-    }
-
-    let user = await User.findOne({ userId });
-    if (!user) user = new User({ userId });
-
-    if (user.balance < bet) {
-      return interaction.editReply({
-        content: '❌ 돈이 부족합니다!',
-        components: []
-      });
-    }
-
-    user.balance -= bet;
-
-    const chance = Math.random();
-    let s1, s2, s3;
-    let multiplier = 0;
-
-    if (chance < 0.4) {
-      const winChance = Math.random();
-
-      if (winChance < 0.05) {
-        s1 = s2 = s3 = '⭐';
-        multiplier = 10;
-      } else if (winChance < 0.15) {
-        s1 = s2 = s3 = '7️⃣';
-        multiplier = 5;
-      } else if (winChance < 0.30) {
-        s1 = s2 = s3 = '💎';
-        multiplier = 3;
-      } else {
-        const normalSymbols = ['🍒', '🍋', '🍇'];
-        const sym = normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
-        s1 = s2 = s3 = sym;
-        multiplier = 2;
+    try {
+      if (!interaction.deferred && !interaction.replied) {
+        await interaction.deferUpdate();
       }
-    } else {
-      const symbols = ['🍒', '🍋', '🍇', '💎', '7️⃣', '⭐'];
-      const pick = () => symbols[Math.floor(Math.random() * symbols.length)];
 
-      s1 = pick();
-      s2 = pick();
-      s3 = pick();
-      multiplier = 0;
+      const data = interaction.customId.split('_');
+      const commandType = data[0];
+
+      // =========================
+      // 🎰 도박
+      // =========================
+      if (commandType === 'gamble') {
+        const userId = data[1];
+        const bet = parseInt(data[2]);
+        const winChance = parseFloat(data[3]);
+
+        if (interaction.user.id !== userId) {
+          return interaction.followUp({
+            content: '❌ 본인만 가능!',
+            ephemeral: true
+          });
+        }
+
+        let user = await User.findOne({ userId }) || new User({ userId });
+
+        if (user.balance < bet) {
+          return interaction.editReply({ content: '❌ 돈 부족', components: [] });
+        }
+
+        const win = Math.random() < winChance;
+        user.balance += win ? bet : -bet;
+        await user.save();
+
+        return interaction.editReply({
+          content: win
+            ? `🎉 승리! +${bet}\n💰 ${user.balance}`
+            : `💀 패배 -${bet}\n💰 ${user.balance}`,
+          components: []
+        });
+      }
+
+      // =========================
+      // ✌️ 가위바위보
+      // =========================
+      if (commandType === 'rps') {
+        const choice = data[1];
+        const userId = data[2];
+        const bet = parseInt(data[3]);
+
+        if (interaction.user.id !== userId) {
+          return interaction.followUp({
+            content: '❌ 본인만 가능!',
+            ephemeral: true
+          });
+        }
+
+        let user = await User.findOne({ userId }) || new User({ userId });
+
+        if (user.balance < bet) {
+          return interaction.editReply({ content: '❌ 돈 부족', components: [] });
+        }
+
+        const choices = ['가위', '바위', '보'];
+        const bot = choices[Math.floor(Math.random() * 3)];
+
+        let reward = 0;
+        let result = '';
+
+        if (choice === bot) result = '🤝 무승부';
+        else if (
+          (choice === '가위' && bot === '보') ||
+          (choice === '바위' && bot === '가위') ||
+          (choice === '보' && bot === '바위')
+        ) {
+          result = '🎉 승리';
+          reward = bet;
+        } else {
+          result = '💀 패배';
+          reward = -bet;
+        }
+
+        user.balance += reward;
+        await user.save();
+
+        return interaction.editReply({
+          content: `👤 ${choice} vs 🤖 ${bot}\n${result}\n💰 ${reward >= 0 ? '+' : ''}${reward}\n잔액: ${user.balance}`,
+          components: []
+        });
+      }
+
+      // =========================
+      // 🎟 복권 (버그 수정 핵심)
+      // =========================
+      if (commandType === 'lottery') {
+        const userId = data[1];
+        const bet = parseInt(data[2]);
+
+        if (interaction.user.id !== userId) {
+          return interaction.followUp({
+            content: '❌ 본인만 가능!',
+            ephemeral: true
+          });
+        }
+
+        let user = await User.findOne({ userId }) || new User({ userId });
+
+        if (user.balance < bet) {
+          return interaction.editReply({ content: '❌ 돈 부족', components: [] });
+        }
+
+        user.balance -= bet;
+
+        const symbols = ['🍒', '🍋', '🍇', '💎', '7️⃣', '⭐'];
+        const pick = () => symbols[Math.floor(Math.random() * symbols.length)];
+
+        const s1 = pick();
+        const s2 = pick();
+        const s3 = pick();
+
+        let multiplier = 0;
+
+        // 🔥 핵심 수정: 같은거 3개 체크
+        if (s1 === s2 && s2 === s3) {
+          if (s1 === '⭐') multiplier = 10;
+          else if (s1 === '7️⃣') multiplier = 5;
+          else if (s1 === '💎') multiplier = 3;
+          else multiplier = 2; // 🍒🍋🍇
+        }
+
+        const reward = bet * multiplier;
+        user.balance += reward;
+        await user.save();
+
+        return interaction.editReply({
+          content: multiplier > 0
+            ? `🎰 [${s1}|${s2}|${s3}]\n🎉 ${multiplier}배 +${reward}\n💰 ${user.balance}`
+            : `🎰 [${s1}|${s2}|${s3}]\n💀 꽝 -${bet}\n💰 ${user.balance}`,
+          components: []
+        });
+      }
+
+    } catch (err) {
+      console.error(err);
+      return interaction.editReply({ content: '❌ 오류 발생', components: [] }).catch(()=>{});
     }
-
-    const reward = bet * multiplier;
-    user.balance += reward;
-    await user.save();
-
-    return interaction.editReply({
-      content: multiplier > 0
-        ? `🎰 [ ${s1} | ${s2} | ${s3} ]\n🎉 ${multiplier}배! +${reward}원\n💰 ${user.balance}원`
-        : `🎰 [ ${s1} | ${s2} | ${s3} ]\n💀 꽝 -${bet}원\n💰 ${user.balance}원`,
-      components: []
-    });
   }
-}
+
 
   // =========================
   // 🔹 2. 슬래시 명령어
