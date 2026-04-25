@@ -75,17 +75,26 @@ client.on('interactionCreate', async interaction => {
   await interaction.deferUpdate();
 
   const choice = data[1];
-  const userId = data[2];
+  const userId = String(data[2]); // 🔥 문자열 보장
   const bet = parseInt(data[3]);
 
-  // 🔥 디버그용 (문제 확인)
+  // 🔥 값 검증 (이거 중요)
+  if (!choice || !userId || isNaN(bet)) {
+    return interaction.editReply({
+      content: '❌ 잘못된 게임 데이터입니다.',
+      components: []
+    });
+  }
+
+  // 🔥 디버그
   console.log("누른 사람:", interaction.user.id);
   console.log("버튼 주인:", userId);
 
+  // 🔥 본인 체크 (더 안전하게)
   if (interaction.user.id !== userId) {
-    return interaction.followUp({
+    return interaction.reply({
       content: '❌ 본인만 사용 가능!',
-      ephemeral: true
+      flags: 64 // ephemeral 최신 방식
     });
   }
 
