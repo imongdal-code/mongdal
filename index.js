@@ -46,8 +46,8 @@ client.on('interactionCreate', async interaction => {
   }
 
     const data = interaction.customId.split('_');
-    const type = data[0]; 
-    
+    const commandType = data[0];
+
   // =========================
   // 🎰 도박
   // =========================
