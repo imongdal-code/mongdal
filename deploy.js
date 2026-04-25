@@ -28,6 +28,14 @@ const commands = [
       .setRequired(true)
   ),
   new SlashCommandBuilder()
+  .setName('가위바위보')
+  .setDescription('가위바위보 배팅 게임')
+  .addIntegerOption(option =>
+    option.setName('금액')
+      .setDescription('배팅 금액')
+      .setRequired(true)
+  ),
+  new SlashCommandBuilder()
   .setName('송금')
   .setDescription('다른 유저에게 돈을 보냅니다')
   .addUserOption(option =>
@@ -41,6 +49,27 @@ const commands = [
       .setRequired(true)
   ),
   new SlashCommandBuilder()
+  .setName('돈리셋')
+  .setDescription('전체 유저 돈 초기화 (관리자 전용)')
+  .addIntegerOption(option =>
+    option.setName('금액')
+      .setDescription('초기화할 금액')
+      .setRequired(true)
+  ),
+  new SlashCommandBuilder()
+  .setName('돈지급')
+  .setDescription('특정 유저에게 돈 지급 (개발자 전용)')
+  .addUserOption(option =>
+    option.setName('유저')
+      .setDescription('대상 유저')
+      .setRequired(true)
+  )
+  .addIntegerOption(option =>
+    option.setName('금액')
+      .setDescription('지급할 금액')
+      .setRequired(true)
+  ),
+  new SlashCommandBuilder()
   .setName('랭킹')
   .setDescription('서버 돈 랭킹을 확인합니다'),
   new SlashCommandBuilder().setName('잔액').setDescription('현재 돈을 확인합니다')
@@ -50,17 +79,31 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 (async () => {
   try {
-    console.log('슬래시 명령어 등록 중...');
+    console.log('초기화 시작...');
 
+    // 🔥 1. 글로벌 명령어 완전 삭제
     await rest.put(
-  Routes.applicationCommands(process.env.CLIENT_ID),
-  { body: [] } // 글로벌 명령어 삭제
-);
+      Routes.applicationCommands(process.env.CLIENT_ID),
+      { body: [] }
+    );
 
+    // 🔥 2. 길드 명령어도 한 번 초기화
     await rest.put(
       Routes.applicationGuildCommands(
-  process.env.CLIENT_ID,
-  process.env.GUILD_ID),
+        process.env.CLIENT_ID,
+        process.env.GUILD_ID
+      ),
+      { body: [] }
+    );
+
+    console.log('전체 삭제 완료');
+
+    // 🔥 3. 다시 등록
+    await rest.put(
+      Routes.applicationGuildCommands(
+        process.env.CLIENT_ID,
+        process.env.GUILD_ID
+      ),
       { body: commands }
     );
 
