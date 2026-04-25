@@ -71,12 +71,16 @@ client.on('interactionCreate', async interaction => {
       });
     }
     // 가위바위보
-    if (data[0] === 'rps') {
+   if (data[0] === 'rps') {
   await interaction.deferUpdate();
 
   const choice = data[1];
   const userId = data[2];
   const bet = parseInt(data[3]);
+
+  // 🔥 디버그용 (문제 확인)
+  console.log("누른 사람:", interaction.user.id);
+  console.log("버튼 주인:", userId);
 
   if (interaction.user.id !== userId) {
     return interaction.followUp({
