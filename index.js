@@ -188,13 +188,20 @@ client.on('interactionCreate', async interaction => {
       }
     } else {
       const symbols = ['🍒', '🍋', '🍇', '💎', '7️⃣', '⭐'];
-      const pick = () => symbols[Math.floor(Math.random() * symbols.length)];
+const pick = () => symbols[Math.floor(Math.random() * symbols.length)];
 
-      s1 = pick();
-      s2 = pick();
-      s3 = pick();
-      multiplier = 0;
-    }
+const s1 = pick();
+const s2 = pick();
+const s3 = pick();
+
+let multiplier = 0;
+
+if (s1 === s2 && s2 === s3) {
+  if (s1 === '⭐') multiplier = 10;
+  else if (s1 === '7️⃣') multiplier = 5;
+  else if (s1 === '💎') multiplier = 3;
+  else multiplier = 2;
+}
 
     const reward = bet * multiplier;
     user.balance += reward;
@@ -208,6 +215,7 @@ client.on('interactionCreate', async interaction => {
     });
   }
 }
+  }
 
   // =========================
   // 🔹 2. 슬래시 명령어
@@ -319,7 +327,7 @@ if (interaction.commandName === '돈지급') {
 
 📊 당첨 확률:
 ❌ 꽝: 60%
-🍒 2배: 28%
+🍒, 🍋, 🍇2배: 28%
 💎 3배: 6%
 7️⃣ 5배: 4%
 ⭐ 10배: 2%`,
