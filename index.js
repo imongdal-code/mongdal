@@ -41,13 +41,12 @@ client.on('interactionCreate', async (interaction) => {
   // 🔹 1. 버튼 처리
   // =========================
   if (interaction.isButton()) {
-    try {
-      if (!interaction.deferred && !interaction.replied) {
-        await interaction.deferUpdate();
-      }
+  try {
+    // 🔥 무조건 즉시 실행 (이게 핵심)
+    await interaction.deferUpdate().catch(() => {});
 
-      const data = interaction.customId.split('_');
-      const commandType = data[0];
+    const data = interaction.customId.split('_');
+    const commandType = data[0];
 
       // =========================
       // 🎰 도박
@@ -174,6 +173,10 @@ client.on('interactionCreate', async (interaction) => {
   // 🔹 2. 슬래시 명령어
   // =========================
   if (!interaction.isChatInputCommand()) return;
+
+try {
+  // 🔥 여기 넣어 (가장 위)
+  await interaction.deferReply();
 
   const { commandName, options, user: author } = interaction;
   let user = await User.findOne({ userId: author.id });
@@ -386,6 +389,9 @@ if (interaction.commandName === '돈리셋') {
 
     return interaction.editReply(msg);
   }
+  } catch (err) {
+  console.error('슬래시 명령어 에러:', err);
+}
 });
 
 // ===== 웹서버 (Render 유지용) =====
