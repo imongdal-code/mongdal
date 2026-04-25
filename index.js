@@ -244,7 +244,7 @@ if (interaction.commandName === '돈지급') {
     if (bet <= 0) return interaction.reply({ content: '❌ 1원 이상 배팅하세요.', ephemeral: true });
     if (user.balance < bet) return interaction.reply({ content: '❌ 돈이 부족합니다.', ephemeral: true });
 
-    const winChance = Math.random() * 0.4 + 0.2; // 확률 조정 (20~60%)
+    const winChance = Math.random() * 0.5 + 0.3; // 확률 조정 30~80% 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId(`gamble_${author.id}_${bet}_${winChance}`)
@@ -274,22 +274,31 @@ if (interaction.commandName === '돈지급') {
 
   // 🎟 복권
   if (commandName === '복권') {
-    const bet = options.getInteger('금액');
-    if (bet <= 0) return interaction.reply('❌ 1원 이상 입력하세요.');
-    if (user.balance < bet) return interaction.reply('❌ 돈이 부족합니다.');
+  const bet = options.getInteger('금액');
+  if (bet <= 0) return interaction.reply('❌ 1원 이상 입력하세요.');
+  if (user.balance < bet) return interaction.reply('❌ 돈이 부족합니다.');
 
-    const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setCustomId(`lottery_${author.id}_${bet}`)
-        .setLabel('🎟 복권 긁기')
-        .setStyle(ButtonStyle.Success)
-    );
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`lottery_${author.id}_${bet}`)
+      .setLabel('🎟 복권 긁기')
+      .setStyle(ButtonStyle.Success)
+  );
 
-    return interaction.reply({
-      content: `🎟 복권을 구매하시겠습니까?\n배팅 금액: \`${bet}원\``,
-      components: [row]
-    });
-  }
+  return interaction.reply({
+    content:
+`🎟 복권을 구매하시겠습니까?
+배팅 금액: \`${bet}원\`
+
+📊 당첨 확률:
+❌ 꽝: 60%
+🍒 2배: 28%
+💎 3배: 6%
+7️⃣ 5배: 4%
+⭐ 10배: 2%`,
+    components: [row]
+  });
+}
 if (interaction.commandName === '가위바위보') {
 
   const bet = interaction.options.getInteger('금액');
