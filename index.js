@@ -36,6 +36,7 @@ client.once('ready', () => {
 
 // 🎮 명령어 처리
 client.on('interactionCreate', async interaction => {
+  await interaction.deferUpdate().catch(() => {});
 
   // =========================
   // 🔹 1. 버튼 처리 (도박/복권 결과창)
