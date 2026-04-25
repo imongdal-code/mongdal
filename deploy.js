@@ -81,13 +81,13 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
   try {
     console.log('초기화 시작...');
 
-    // 🔥 1. 글로벌 명령어 완전 삭제
+    // 🔥 1. 글로벌 명령어 삭제
     await rest.put(
       Routes.applicationCommands(process.env.CLIENT_ID),
       { body: [] }
     );
 
-    // 🔥 2. 길드 명령어도 한 번 초기화
+    // 🔥 2. 길드 명령어 삭제 (깔끔하게)
     await rest.put(
       Routes.applicationGuildCommands(
         process.env.CLIENT_ID,
@@ -98,16 +98,13 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
     console.log('전체 삭제 완료');
 
-    // 🔥 3. 다시 등록
+    // 🔥 3. 글로벌로 다시 등록 (⭐ 핵심)
     await rest.put(
-      Routes.applicationGuildCommands(
-        process.env.CLIENT_ID,
-        process.env.GUILD_ID
-      ),
+      Routes.applicationCommands(process.env.CLIENT_ID),
       { body: commands }
     );
 
-    console.log('등록 완료!');
+    console.log('✅ 글로벌 명령어 등록 완료!');
   } catch (error) {
     console.error(error);
   }

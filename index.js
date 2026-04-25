@@ -319,22 +319,22 @@ if (interaction.commandName === '가위바위보') {
     return interaction.reply('❌ 돈 부족!');
   }
 
-  const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setCustomId(`rps_가위_${userId}_${bet}`)
-      .setLabel('✌️ 가위')
-      .setStyle(ButtonStyle.Primary),
+ const row = new ActionRowBuilder().addComponents(
+  new ButtonBuilder()
+    .setCustomId(`rps_가위_${interaction.user.id}_${bet}`)
+    .setLabel('✌️ 가위')
+    .setStyle(ButtonStyle.Primary),
 
-    new ButtonBuilder()
-      .setCustomId(`rps_바위_${userId}_${bet}`)
-      .setLabel('✊ 바위')
-      .setStyle(ButtonStyle.Danger),
+  new ButtonBuilder()
+    .setCustomId(`rps_바위_${interaction.user.id}_${bet}`)
+    .setLabel('✊ 바위')
+    .setStyle(ButtonStyle.Primary),
 
-    new ButtonBuilder()
-      .setCustomId(`rps_보_${userId}_${bet}`)
-      .setLabel('✋ 보')
-      .setStyle(ButtonStyle.Success)
-  );
+  new ButtonBuilder()
+    .setCustomId(`rps_보_${interaction.user.id}_${bet}`)
+    .setLabel('✋ 보')
+    .setStyle(ButtonStyle.Primary)
+);
 
   return interaction.reply({
     content: `💰 배팅: ${bet}원\n✊ 선택하세요!`,
