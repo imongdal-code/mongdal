@@ -45,17 +45,9 @@ client.on('interactionCreate', async interaction => {
     await interaction.deferUpdate().catch(() => {});
   }
 
-  try {
     const data = interaction.customId.split('_');
-    const type = data[0];
-
-    // 로직 처리
-    return interaction.editReply("✅ 처리 완료").catch(() => {});
-
-  } catch (err) {
-    return interaction.editReply("❌ 오류 발생").catch(() => {});
-  }
-}
+    const type = data[0]; 
+    
   // =========================
   // 🎰 도박
   // =========================
