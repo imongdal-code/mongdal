@@ -179,7 +179,7 @@ client.on('interactionCreate', async (interaction) => {
   }
 
 try {
-  
+
   const { commandName, options, user: author } = interaction;
 
   let user = await User.findOne({ userId: author.id });
@@ -229,40 +229,6 @@ else if (interaction.commandName === '돈지급') {
   return interaction.editReply(
     `✅ ${target.username}에게 ${amount}원 지급 완료!\n💰 현재 잔액: ${targetUser.balance}원`
   );
-}
-
-// 💸 전체 돈 지급 (나만 가능)
-else if (interaction.commandName === '전체지급') {
-
-  const OWNER_ID = process.env.OWNER_ID;
-
-  // 🔒 개발자 체크
-  if (interaction.user.id !== OWNER_ID) {
-    return interaction.editReply('❌ 개발자만 사용 가능합니다.');
-  }
-
-  const amount = interaction.options.getInteger('금액');
-
-  // 🔥 입력값 체크
-  if (!amount || amount <= 0) {
-    return interaction.editReply('❌ 1원 이상 입력하세요!');
-  }
-
-  try {
-    // 🔥 모든 유저에게 돈 추가
-    const result = await User.updateMany(
-      {},
-      { $inc: { balance: amount } }
-    );
-
-    return interaction.editReply(
-      `✅ 전체 유저에게 ${amount}원 지급 완료!\n👥 대상: ${result.modifiedCount}명`
-    );
-
-  } catch (err) {
-    console.error(err);
-    return interaction.editReply('❌ 지급 중 오류 발생');
-  }
 }
 
   // 🎰 도박 (수정됨)

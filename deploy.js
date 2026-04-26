@@ -70,14 +70,6 @@ const commands = [
       .setRequired(true)
   ),
   new SlashCommandBuilder()
-  .setName('전체지급')
-  .setDescription('모든 유저에게 돈 지급 (개발자 전용)')
-  .addIntegerOption(option =>
-    option.setName('금액')
-      .setDescription('지급할 금액')
-      .setRequired(true)
-  ),
-  new SlashCommandBuilder()
   .setName('랭킹')
   .setDescription('서버 돈 랭킹을 확인합니다'),
   new SlashCommandBuilder().setName('잔액').setDescription('현재 돈을 확인합니다')
