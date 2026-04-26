@@ -174,12 +174,12 @@ client.on('interactionCreate', async (interaction) => {
   // =========================
   if (!interaction.isChatInputCommand()) return;
 
-try {
-  // 🔥 안전하게 defer (중복 방지 + 속도 문제 해결)
   if (!interaction.deferred && !interaction.replied) {
     await interaction.deferReply();
   }
 
+try {
+  
   const { commandName, options, user: author } = interaction;
 
   let user = await User.findOne({ userId: author.id });
