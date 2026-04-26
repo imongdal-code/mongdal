@@ -175,10 +175,13 @@ client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
 try {
-  // 🔥 여기 넣어 (가장 위)
-  await interaction.deferReply();
+  // 🔥 안전하게 defer (중복 방지 + 속도 문제 해결)
+  if (!interaction.deferred && !interaction.replied) {
+    await interaction.deferReply();
+  }
 
   const { commandName, options, user: author } = interaction;
+
   let user = await User.findOne({ userId: author.id });
   if (!user) {
     user = new User({ userId: author.id });
