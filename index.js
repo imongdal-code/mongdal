@@ -169,19 +169,16 @@ client.on('interactionCreate', async (interaction) => {
 
     return; // 🔥 버튼 끝나면 여기서 종료
   }
-  // =========================
+   // =========================
   // 🔹 2. 슬래시 명령어
   // =========================
   if (!interaction.isChatInputCommand()) return;
 
-  if (!interaction.deferred && !interaction.replied) {
-    await interaction.deferReply();
-  }
-
 try {
+  // 🔥 여기 넣어 (가장 위)
+  await interaction.deferReply();
 
   const { commandName, options, user: author } = interaction;
-
   let user = await User.findOne({ userId: author.id });
   if (!user) {
     user = new User({ userId: author.id });
@@ -194,7 +191,7 @@ try {
   }
 
   // 💸 돈줘
-else if (commandName === '돈줘') {
+  if (commandName === '돈줘') {
     const today = new Date().toLocaleDateString();
     if (user.lastClaim === today) return interaction.editReply('⏳ 오늘 지원금은 이미 받으셨습니다! 내일 다시 오세요.');
 
@@ -205,7 +202,8 @@ else if (commandName === '돈줘') {
   }
 
    // 💸 돈 지급 (나만 가능)
-else if (interaction.commandName === '돈지급') {
+if (interaction.commandName === '돈지급') {
+  await interaction.deferReply({ flags: 64 });
 
   const OWNER_ID = process.env.OWNER_ID;
 
@@ -232,7 +230,7 @@ else if (interaction.commandName === '돈지급') {
 }
 
   // 🎰 도박 (수정됨)
-  else if (commandName === '도박') {
+  if (commandName === '도박') {
     const bet = options.getInteger('금액');
     if (bet <= 0) return interaction.editReply({ content: '❌ 1원 이상 배팅하세요.', ephemeral: true });
     if (user.balance < bet) return interaction.editReply({ content: '❌ 돈이 부족합니다.', ephemeral: true });
@@ -252,7 +250,7 @@ else if (interaction.commandName === '돈지급') {
   }
 
   // 🎲 주사위 (deferReply 적용)
-  else if (commandName === '주사위') {
+  if (commandName === '주사위') {
     const bet = options.getInteger('금액');
     if (bet <= 0) return interaction.editReply('❌ 1원 이상 입력하세요.');
     if (user.balance < bet) return interaction.editReply('❌ 돈이 부족합니다.');
@@ -266,7 +264,7 @@ else if (interaction.commandName === '돈지급') {
   }
 
   // 🎟 복권
-  else if (commandName === '복권') {
+  if (commandName === '복권') {
   const bet = options.getInteger('금액');
   if (bet <= 0) return interaction.editReply('❌ 1원 이상 입력하세요.');
   if (user.balance < bet) return interaction.editReply('❌ 돈이 부족합니다.');
@@ -292,7 +290,7 @@ else if (interaction.commandName === '돈지급') {
     components: [row]
   });
 }
-else if (interaction.commandName === '가위바위보') {
+if (interaction.commandName === '가위바위보') {
 
   const bet = interaction.options.getInteger('금액');
   const userId = interaction.user.id;
@@ -332,7 +330,8 @@ else if (interaction.commandName === '가위바위보') {
 }
 
   // 💣 전체 돈 리셋 (관리자 전용)
-else if (interaction.commandName === '돈리셋') {
+if (interaction.commandName === '돈리셋') {
+  await interaction.deferReply({ ephemeral: true });
 
   // 🔒 관리자 권한 체크
   if (!interaction.member.permissions.has('Administrator')) {
@@ -351,7 +350,7 @@ else if (interaction.commandName === '돈리셋') {
   return interaction.editReply(`✅ 모든 유저 돈을 ${amount}원으로 초기화 완료!`);
 }
   // 💸 송금
-  else if (commandName === '송금') {
+  if (commandName === '송금') {
     const target = options.getUser('유저');
     const amount = options.getInteger('금액');
 
@@ -372,7 +371,8 @@ else if (interaction.commandName === '돈리셋') {
   }
 
   // 🏆 랭킹 (deferReply + editReply 적용)
-  else if (commandName === '랭킹') {
+  if (commandName === '랭킹') {
+    await interaction.deferReply();
     const topUsers = await User.find().sort({ balance: -1 }).limit(10);
     let msg = '🏆 **전체 자산 랭킹 TOP 10**\n\n';
 
