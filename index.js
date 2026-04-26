@@ -231,7 +231,7 @@ if (interaction.commandName === '돈지급') {
 
 // 💸 전체 돈 지급 (나만 가능)
 if (interaction.commandName === '전체지급') {
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: 64 });
 
   const OWNER_ID = process.env.OWNER_ID;
 
@@ -242,19 +242,26 @@ if (interaction.commandName === '전체지급') {
 
   const amount = interaction.options.getInteger('금액');
 
-  if (amount <= 0) {
+  // 🔥 입력값 체크
+  if (!amount || amount <= 0) {
     return interaction.editReply('❌ 1원 이상 입력하세요!');
   }
 
-  // 🔥 모든 유저에게 돈 추가
-  const result = await User.updateMany(
-    {},
-    { $inc: { balance: amount } }
-  );
+  try {
+    // 🔥 모든 유저에게 돈 추가
+    const result = await User.updateMany(
+      {},
+      { $inc: { balance: amount } }
+    );
 
-  return interaction.editReply(
-    `✅ 전체 유저에게 ${amount}원 지급 완료!\n👥 대상: ${result.modifiedCount}명`
-  );
+    return interaction.editReply(
+      `✅ 전체 유저에게 ${amount}원 지급 완료!\n👥 대상: ${result.modifiedCount}명`
+    );
+
+  } catch (err) {
+    console.error(err);
+    return interaction.editReply('❌ 지급 중 오류 발생');
+  }
 }
 
   // 🎰 도박 (수정됨)
