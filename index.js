@@ -171,7 +171,7 @@ ${result}
 
         return interaction.editReply({
          content: multi > 0
-           ? `🎰 [${s1}|${s2}|${s3}]\n🎉 ${multiplier}배 당첨! +${fmt(reward)}\n💰 ${fmt(user.balance)}`
+           ? `🎰 [${s1}|${s2}|${s3}]\n🎉 ${multi}배 당첨! +${fmt(reward)}\n💰 ${fmt(user.balance)}`
            : `🎰 [${s1}|${s2}|${s3}]\n💀 꽝 (-${fmt(bet)})\n💰 ${fmt(user.balance)}`,
            components: []
             });
