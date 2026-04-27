@@ -33,7 +33,7 @@ const client = new Client({
 client.once('ready', () => {
   console.log(`✅ 로그인됨: ${client.user.tag}`);
 });
-
+const fmt = (n) => `${n.toLocaleString('ko-KR')}원`;
 // 🎮 명령어 처리
 client.on('interactionCreate', async (interaction) => {
 
@@ -74,11 +74,11 @@ client.on('interactionCreate', async (interaction) => {
         await user.save();
 
         return interaction.editReply({
-          content: win
-            ? `🎉 승리! +${bet}\n💰 ${user.balance}`
-            : `💀 패배 -${bet}\n💰 ${user.balance}`,
-          components: []
-        });
+           content: win
+             ? `🎉 승리! +${fmt(bet)}\n💰 현재 잔액: ${fmt(user.balance)}`
+             : `💀 패배 -${fmt(bet)}\n💰 현재 잔액: ${fmt(user.balance)}`,
+              components: []
+             });
       }
 
       // =========================
@@ -114,9 +114,9 @@ client.on('interactionCreate', async (interaction) => {
         await user.save();
 
         return interaction.editReply({
-          content: `👤 ${choice} vs 🤖 ${bot}\n💰 ${reward >= 0 ? '+' : ''}${reward}\n잔액: ${user.balance}`,
+          content: `👤 ${choice} vs 🤖 ${bot}\n${result}\n💰 ${reward >= 0 ? '+' : ''}${fmt(Math.abs(reward))}\n잔액: ${fmt(user.balance)}`,
           components: []
-        });
+         });
       }
 
       // =========================
@@ -156,11 +156,11 @@ client.on('interactionCreate', async (interaction) => {
         await user.save();
 
         return interaction.editReply({
-          content: multi
-            ? `🎰 [${s1}|${s2}|${s3}]\n🎉 ${multi}배 +${reward}\n💰 ${user.balance}`
-            : `🎰 [${s1}|${s2}|${s3}]\n💀 꽝 -${bet}\n💰 ${user.balance}`,
-          components: []
-        });
+         content: multiplier > 0
+           ? `🎰 [${s1}|${s2}|${s3}]\n🎉 ${multiplier}배 당첨! +${fmt(reward)}\n💰 ${fmt(user.balance)}`
+           : `🎰 [${s1}|${s2}|${s3}]\n💀 꽝 (-${fmt(bet)})\n💰 ${fmt(user.balance)}`,
+           components: []
+            });
       }
 
     } catch (err) {
@@ -187,7 +187,7 @@ try {
 
   // 💰 잔액
   if (commandName === '잔액') {
-    return interaction.editReply(`💰 **${author.username}**님의 현재 잔액: \`${user.balance}원\``);
+    return interaction.editReply(`💰 **${author.username}**님의 현재 잔액: \`${fmt(user.balance)}\``);
   }
 
   // 💸 돈줘
@@ -198,7 +198,7 @@ try {
     user.balance += 100000;
     user.lastClaim = today;
     await user.save();
-    return interaction.editReply('💰 지원금 **100,000원**이 지급되었습니다! 대박 나세요!');
+    return interaction.editReply(`💰 지원금 **${fmt(100000)}** 지급 완료되었습니다!`);
   }
 
    // 💸 돈 지급 (나만 가능)
@@ -225,8 +225,8 @@ if (interaction.commandName === '돈지급') {
   await targetUser.save();
 
   return interaction.editReply(
-    `✅ ${target.username}에게 ${amount}원 지급 완료!\n💰 현재 잔액: ${targetUser.balance}원`
-  );
+  `✅ ${target.username}에게 ${fmt(amount)} 지급 완료!\n💰 현재 잔액: ${fmt(targetUser.balance)}`
+   );
 }
 
   // 🎰 도박 (수정됨)
@@ -244,7 +244,11 @@ if (interaction.commandName === '돈지급') {
     );
 
     return interaction.editReply({
-      content: `🎲 **도박 정보**\n예상 승률: \`${(winChance * 100).toFixed(1)}%\`\n배팅 금액: \`${bet}원\`\n\n준비되셨으면 아래 버튼을 눌러주세요!`,
+      content: `🎲 **도박 정보**
+       예상 승률: \`${(winChance * 100).toFixed(1)}%\`
+      배팅 금액: \`${fmt(bet)}\`
+
+       준비되셨으면 아래 버튼을 눌러주세요!`,
       components: [row]
     });
   }
@@ -260,7 +264,11 @@ if (interaction.commandName === '돈지급') {
     user.balance += isWin ? bet : -bet;
     await user.save();
 
-    return interaction.editReply(`🎲 주사위를 굴려 **${dice}**이(가) 나왔습니다!\n${isWin ? `🎉 **승리!** (+${bet}원)` : `💀 **패배...** (-${bet}원)`}\n💰 현재 잔액: ${user.balance}원`);
+    return interaction.editReply(
+  `🎲 주사위 결과: **${dice}**
+    ${isWin ? `🎉 승리! (+${fmt(bet)})` : `💀 패배 (-${fmt(bet)})`}
+    💰 현재 잔액: ${fmt(user.balance)}`
+     );
   }
 
   // 🎟 복권
@@ -279,14 +287,14 @@ if (interaction.commandName === '돈지급') {
   return interaction.editReply({
     content:
 `🎟 복권을 구매하시겠습니까?
-배팅 금액: \`${bet}원\`
+배팅 금액: \`${fmt(bet)}\`
 
 📊 당첨 확률:
 ❌ 꽝: 60%
-🍒, 🍋, 🍇'2배: 28%
-💎 3배: 6%
-7️⃣ 5배: 4%
-⭐ 10배: 2%`,
+🍒🍋🍇: 2배
+💎: 3배
+7️⃣: 5배
+⭐: 10배`,
     components: [row]
   });
 }
@@ -324,7 +332,7 @@ if (interaction.commandName === '가위바위보') {
 );
 
   return interaction.editReply({
-    content: `💰 배팅: ${bet}원\n✊ 선택하세요!`,
+     content: `💰 배팅: ${fmt(bet)}\n✊ 선택하세요!`,
     components: [row]
   });
 }
@@ -347,7 +355,7 @@ if (interaction.commandName === '돈리셋') {
   // 🔥 전체 유저 돈 변경
   await User.updateMany({}, { balance: amount });
 
-  return interaction.editReply(`✅ 모든 유저 돈을 ${amount}원으로 초기화 완료!`);
+  return interaction.editReply(`✅ 모든 유저 돈을 ${fmt(amount)}으로 초기화 완료!`);
 }
   // 💸 송금
   if (commandName === '송금') {
@@ -367,7 +375,9 @@ if (interaction.commandName === '돈리셋') {
     await user.save();
     await targetUser.save();
 
-    return interaction.editReply(`💸 **${target.username}**님께 \`${amount}원\`을 보냈습니다!\n💰 남은 잔액: \`${user.balance}원\``);
+    return interaction.editReply(
+  `💸 **${target.username}**님께 ${fmt(amount)} 송금 완료!\n💰 남은 잔액: ${fmt(user.balance)}`
+   );
   }
 
   // 🏆 랭킹 (deferReply + editReply 적용)
@@ -377,15 +387,27 @@ if (interaction.commandName === '돈리셋') {
     let msg = '🏆 **전체 자산 랭킹 TOP 10**\n\n';
 
     for (let i = 0; i < topUsers.length; i++) {
-      const u = topUsers[i];
-      let name = '퇴사한 유저';
+    const u = topUsers[i];
+    let name = '알 수 없음';
+
+    try {
+      // 🔥 핵심: guildMember 가져오기
+      const member = await interaction.guild.members.fetch(u.userId);
+
+      // 🔥 닉네임 우선, 없으면 username
+      name = member.nickname || member.user.username;
+
+    } catch (e) {
+      // 서버에 없는 유저 fallback
       try {
         const userObj = await client.users.fetch(u.userId);
         name = userObj.username;
-      } catch (e) {}
-      const medal = ['🥇', '🥈', '🥉'][i] || `[${i + 1}위]`;
-      msg += `${medal} **${name}** : \`${u.balance.toLocaleString()}원\`\n`;
+      } catch {}
     }
+
+    const medal = ['🥇', '🥈', '🥉'][i] || `[${i + 1}위]`;
+    msg += `${medal} **${name}** : \`${fmt(u.balance)}\`\n`;
+  }
 
     return interaction.editReply(msg);
   }
