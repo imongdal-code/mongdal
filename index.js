@@ -189,7 +189,11 @@ ${result}
   if (!interaction.isChatInputCommand()) return;
 
 try {
-  await interaction.deferReply().catch(() => {});
+  // 1. 명령어 이름을 미리 확인해서 '돈지급' 명령어면 비공개로 설정
+  const isPrivate = (interaction.commandName === '돈지급');
+
+  // 2. 결정된 설정으로 deferReply 실행
+  await interaction.deferReply({ ephemeral: isPrivate }).catch(() => {});
 
 
   const { commandName, options, user: author } = interaction;
@@ -217,7 +221,7 @@ try {
 
    // 💸 돈 지급 (나만 가능)
 if (interaction.commandName === '돈지급') {
-  await interaction.editReply({ flags: 64 });
+  
 
   const OWNER_ID = process.env.OWNER_ID;
 
