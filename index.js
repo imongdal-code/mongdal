@@ -43,9 +43,7 @@ client.on('interactionCreate', async (interaction) => {
   if (interaction.isButton()) {
   try {
     // 🔥 중복 응답 방지 + 실패 방지
-    if (!interaction.deferred && !interaction.replied) {
-      await interaction.deferUpdate().catch(() => {});
-    }
+    await interaction.deferUpdate().catch(() => {});
 
     const data = interaction.customId.split('_');
     const commandType = data[0];
@@ -192,9 +190,7 @@ ${result}
 
 try {
   // 🔥 이거 단 한 번만
-  if (!interaction.deferred && !interaction.replied) {
-    await interaction.deferReply();
-  }
+  await interaction.deferUpdate().catch(() => {});
 
   const { commandName, options, user: author } = interaction;
   let user = await User.findOne({ userId: author.id });
