@@ -103,12 +103,20 @@ client.on('interactionCreate', async (interaction) => {
         const bot = choices[Math.floor(Math.random() * 3)];
 
         let reward = 0;
-        if (
-          (choice === '가위' && bot === '보') ||
-          (choice === '바위' && bot === '가위') ||
-          (choice === '보' && bot === '바위')
-        ) reward = bet;
-        else if (choice !== bot) reward = -bet;
+        let result = '';
+        if (choice === bot) {
+          result = '🤝 무승부';
+          } else if (
+           (choice === '가위' && bot === '보') ||
+            (choice === '바위' && bot === '가위') ||
+             (choice === '보' && bot === '바위')
+              ) {
+              result = '🎉 승리';
+              reward = bet;
+              } else {
+              result = '💀 패배';
+               reward = -bet;
+               }
 
         user.balance += reward;
         await user.save();
