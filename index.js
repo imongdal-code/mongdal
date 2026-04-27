@@ -189,8 +189,8 @@ ${result}
   if (!interaction.isChatInputCommand()) return;
 
 try {
-  // 🔥 이거 단 한 번만
-  await interaction.deferUpdate().catch(() => {});
+  await interaction.deferReply().catch(() => {});
+
 
   const { commandName, options, user: author } = interaction;
   let user = await User.findOne({ userId: author.id });
