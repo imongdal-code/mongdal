@@ -42,8 +42,10 @@ client.on('interactionCreate', async (interaction) => {
   // =========================
   if (interaction.isButton()) {
   try {
-    // 🔥 무조건 즉시 실행 (이게 핵심)
-    await interaction.deferUpdate().catch(() => {});
+    // 🔥 중복 응답 방지 + 실패 방지
+    if (!interaction.deferred && !interaction.replied) {
+      await interaction.deferUpdate().catch(() => {});
+    }
 
     const data = interaction.customId.split('_');
     const commandType = data[0];
@@ -189,8 +191,10 @@ ${result}
   if (!interaction.isChatInputCommand()) return;
 
 try {
-  // 🔥 여기 넣어 (가장 위)
-  await interaction.deferReply();
+  // 🔥 이거 단 한 번만
+  if (!interaction.deferred && !interaction.replied) {
+    await interaction.deferReply();
+  }
 
   const { commandName, options, user: author } = interaction;
   let user = await User.findOne({ userId: author.id });
