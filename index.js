@@ -157,7 +157,7 @@ ${result}
 
         const s1 = pick(), s2 = pick(), s3 = pick();
 
-        let multiplier = 0;
+        let multi = 0;
         if (s1 === s2 && s2 === s3) {
           if (s1 === '⭐') multi = 10;
           else if (s1 === '7️⃣') multi = 5;
@@ -170,7 +170,7 @@ ${result}
         await user.save();
 
         return interaction.editReply({
-         content: multiplier > 0
+         content: multi > 0
            ? `🎰 [${s1}|${s2}|${s3}]\n🎉 ${multiplier}배 당첨! +${fmt(reward)}\n💰 ${fmt(user.balance)}`
            : `🎰 [${s1}|${s2}|${s3}]\n💀 꽝 (-${fmt(bet)})\n💰 ${fmt(user.balance)}`,
            components: []
