@@ -157,7 +157,7 @@ ${result}
 
         const s1 = pick(), s2 = pick(), s3 = pick();
 
-        let multi = 0;
+        let multiplier = 0;
         if (s1 === s2 && s2 === s3) {
           if (s1 === '⭐') multi = 10;
           else if (s1 === '7️⃣') multi = 5;
@@ -396,7 +396,6 @@ if (interaction.commandName === '돈리셋') {
 
   // 🏆 랭킹 (deferReply + editReply 적용)
   if (commandName === '랭킹') {
-    await interaction.deferReply();
     const topUsers = await User.find().sort({ balance: -1 }).limit(10);
     let msg = '🏆 **전체 자산 랭킹 TOP 10**\n\n';
 
