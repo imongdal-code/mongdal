@@ -353,7 +353,6 @@ if (interaction.commandName === '가위바위보') {
 
   // 💣 전체 돈 리셋 (관리자 전용)
 if (interaction.commandName === '돈리셋') {
-  await interaction.editReply({ ephemeral: true });
 
   // 🔒 관리자 권한 체크
   if (!interaction.member.permissions.has('Administrator')) {
