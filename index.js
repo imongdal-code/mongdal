@@ -217,7 +217,7 @@ try {
 
    // 💸 돈 지급 (나만 가능)
 if (interaction.commandName === '돈지급') {
-  await interaction.deferReply({ flags: 64 });
+  await interaction.editReply({ flags: 64 });
 
   const OWNER_ID = process.env.OWNER_ID;
 
@@ -353,7 +353,7 @@ if (interaction.commandName === '가위바위보') {
 
   // 💣 전체 돈 리셋 (관리자 전용)
 if (interaction.commandName === '돈리셋') {
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.editReply({ ephemeral: true });
 
   // 🔒 관리자 권한 체크
   if (!interaction.member.permissions.has('Administrator')) {
