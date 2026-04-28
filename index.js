@@ -193,7 +193,13 @@ try {
   const isPrivate = (interaction.commandName === '돈지급');
 
   // 2. 결정된 설정으로 deferReply 실행
-  await interaction.deferReply({ ephemeral: isPrivate }).catch(() => {});
+ let deferred = false;
+  try {
+    await interaction.deferReply({ ephemeral: isPrivate });
+    deferred = true;
+  } catch (e) {
+    console.log('defer 실패:', e);
+  }
 
 
   const { commandName, options, user: author } = interaction;
