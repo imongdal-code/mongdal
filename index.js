@@ -209,15 +209,34 @@ try {
   }
 
   // 💸 돈줘
-  if (commandName === '돈줘') {
-    const today = new Date().toLocaleDateString();
-    if (user.lastClaim === today) return interaction.editReply('⏳ 오늘 지원금은 이미 받으셨습니다! 내일 다시 오세요.');
+  function getKSTDate() {
+  const now = new Date();
+  const kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
 
-    user.balance += 100000;
-    user.lastClaim = today;
-    await user.save();
-    return interaction.editReply(`💰 지원금 **${fmt(100000)}** 지급 완료되었습니다!`);
+  const year = kst.getFullYear();
+  const month = String(kst.getMonth() + 1).padStart(2, '0');
+  const day = String(kst.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+if (commandName === '돈줘') {
+  const today = getKSTDate();
+
+  if (user.lastClaim && !/^\d{4}-\d{2}-\d{2}$/.test(user.lastClaim)) {
+    user.lastClaim = null;
   }
+
+  if (user.lastClaim === today) {
+    return interaction.editReply('⏳ 오늘 지원금은 이미 받으셨습니다! (KST 기준)');
+  }
+
+  user.balance += 100000;
+  user.lastClaim = today;
+  await user.save();
+
+  return interaction.editReply(`💰 지원금 **${fmt(100000)}** 지급 완료되었습니다!`);
+}
 
    // 💸 돈 지급 (나만 가능)
 if (interaction.commandName === '돈지급') {
