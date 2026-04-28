@@ -193,15 +193,8 @@ try {
   const isPrivate = (interaction.commandName === '돈지급');
 
   // 2. 결정된 설정으로 deferReply 실행
- let deferred = false;
-  try {
-    await interaction.deferReply({ ephemeral: isPrivate });
-    deferred = true;
-  } catch (e) {
-    console.log('defer 실패:', e);
-  }
-
-
+ 
+  await interaction.deferReply({ ephemeral: isPrivate });
   const { commandName, options, user: author } = interaction;
   let user = await User.findOne({ userId: author.id });
   if (!user) {
@@ -209,22 +202,22 @@ try {
     await user.save();
   }
 
+  function getKSTDate() {
+    const now = new Date();
+    const kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+
+    const y = kst.getFullYear();
+    const m = String(kst.getMonth() + 1).padStart(2, '0');
+    const d = String(kst.getDate()).padStart(2, '0');
+
+    return `${y}-${m}-${d}`;
+  }
   // 💰 잔액
   if (commandName === '잔액') {
     return interaction.editReply(`💰 **${author.username}**님의 현재 잔액: \`${fmt(user.balance)}\``);
   }
 
   // 💸 돈줘
-  function getKSTDate() {
-  const now = new Date();
-  const kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-
-  const year = kst.getFullYear();
-  const month = String(kst.getMonth() + 1).padStart(2, '0');
-  const day = String(kst.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-}
 
 if (commandName === '돈줘') {
   const today = getKSTDate();
