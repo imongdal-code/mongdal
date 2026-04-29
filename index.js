@@ -187,6 +187,7 @@ ${result}
 
     } catch (err) {
       console.error(err);
+      return;
     }
 
     return; // 🔥 버튼 끝나면 여기서 종료
