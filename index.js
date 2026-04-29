@@ -38,13 +38,6 @@ const handled = new Set();
 // 🎮 명령어 처리
 client.on('interactionCreate', async (interaction) => {
 
-    // =========================
-  // 🔥 0. 중복 실행 방지 (최상단)
-  // =========================
-  if (handled.has(interaction.id)) return;
-  handled.add(interaction.id);
-  setTimeout(() => handled.delete(interaction.id), 10000);
-
   // =========================
   // 🔹 1. 버튼 처리
   // =========================
