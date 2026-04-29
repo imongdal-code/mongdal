@@ -51,7 +51,6 @@ client.on('interactionCreate', async (interaction) => {
   if (interaction.isButton()) {
   try {
     // 🔥 중복 응답 방지 + 실패 방지
-    await interaction.deferReply({ ephemeral: true });
 
     const data = interaction.customId.split('_');
     const commandType = data[0];
@@ -81,7 +80,7 @@ client.on('interactionCreate', async (interaction) => {
         user.balance += win ? bet : -bet;
         await user.save();
 
-        return interaction.editReply({
+        return interaction.update({
            content: win
              ? `🎉 승리! +${fmt(bet)}\n💰 현재 잔액: ${fmt(user.balance)}`
              : `💀 패배 -${fmt(bet)}\n💰 현재 잔액: ${fmt(user.balance)}`,
@@ -131,7 +130,7 @@ client.on('interactionCreate', async (interaction) => {
   user.balance += reward;
   await user.save();
 
-  return interaction.editReply({
+  return interaction.update({
     content:
 `👤 ${choice} vs 🤖 ${bot}
 ${result}
@@ -177,7 +176,7 @@ ${result}
         user.balance += reward;
         await user.save();
 
-        return interaction.editReply({
+        return interaction.update({
          content: multi > 0
            ? `🎰 [${s1}|${s2}|${s3}]\n🎉 ${multi}배 당첨! +${fmt(reward)}\n💰 ${fmt(user.balance)}`
            : `🎰 [${s1}|${s2}|${s3}]\n💀 꽝 (-${fmt(bet)})\n💰 ${fmt(user.balance)}`,
