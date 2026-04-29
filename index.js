@@ -51,6 +51,7 @@ client.on('interactionCreate', async (interaction) => {
   if (interaction.isButton()) {
   try {
     // 🔥 중복 응답 방지 + 실패 방지
+    await interaction.deferUpdate().catch(() => {});
 
     const data = interaction.customId.split('_');
     const commandType = data[0];
@@ -130,7 +131,7 @@ client.on('interactionCreate', async (interaction) => {
   user.balance += reward;
   await user.save();
 
-  return interaction.update({
+  return interaction.editReply({
     content:
 `👤 ${choice} vs 🤖 ${bot}
 ${result}
@@ -176,7 +177,7 @@ ${result}
         user.balance += reward;
         await user.save();
 
-        return interaction.update({
+        return interaction.editReply({
          content: multi > 0
            ? `🎰 [${s1}|${s2}|${s3}]\n🎉 ${multi}배 당첨! +${fmt(reward)}\n💰 ${fmt(user.balance)}`
            : `🎰 [${s1}|${s2}|${s3}]\n💀 꽝 (-${fmt(bet)})\n💰 ${fmt(user.balance)}`,
