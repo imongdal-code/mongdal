@@ -51,7 +51,7 @@ client.on('interactionCreate', async (interaction) => {
   if (interaction.isButton()) {
   try {
     // 🔥 중복 응답 방지 + 실패 방지
-    await interaction.deferUpdate().catch(() => {});
+    await interaction.deferUpdate();
 
     const data = interaction.customId.split('_');
     const commandType = data[0];
@@ -81,7 +81,7 @@ client.on('interactionCreate', async (interaction) => {
         user.balance += win ? bet : -bet;
         await user.save();
 
-        return interaction.update({
+        return interaction.editReply({
            content: win
              ? `🎉 승리! +${fmt(bet)}\n💰 현재 잔액: ${fmt(user.balance)}`
              : `💀 패배 -${fmt(bet)}\n💰 현재 잔액: ${fmt(user.balance)}`,
