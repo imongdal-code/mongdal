@@ -249,6 +249,7 @@ if (commandName === '돈줘') {
   if (dayOfWeek === 2 || dayOfWeek === 5) {
     msg += '\n🎉 화/금 보너스 2배 지급!';
   }
+  return interaction.editReply(msg);
 }
 
    // 💸 돈 지급 (나만 가능)
@@ -312,7 +313,7 @@ if (interaction.commandName === '돈지급') {
     let dice;
 
   // 🔥 너만 확률 보정
-  if (author.id === '너의디스코드ID') {
+  if (author.id === process.env.OWNER_ID) {
     const roll1 = Math.floor(Math.random() * 6) + 1;
     const roll2 = Math.floor(Math.random() * 6) + 1;
     dice = Math.max(roll1, roll2);
@@ -323,7 +324,7 @@ if (interaction.commandName === '돈지급') {
   const isWin = dice >= 4;
   user.balance += isWin ? bet : -bet;
   await user.save();
-  
+
     return interaction.editReply(
   `🎲 주사위 결과: **${dice}**
     ${isWin ? `🎉 승리! (+${fmt(bet)})` : `💀 패배 (-${fmt(bet)})`}
@@ -471,6 +472,11 @@ if (interaction.commandName === '돈리셋') {
   }
   } catch (err) {
   console.error('슬래시 명령어 에러:', err);
+  if (!interaction.replied && !interaction.deferred) {
+    await interaction.reply({ content: '❌ 오류 발생', ephemeral: true });
+  } else {
+    await interaction.editReply('❌ 오류 발생');
+  }
 }
 });
 
