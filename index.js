@@ -188,13 +188,13 @@ ${result}
   // =========================
   if (!interaction.isChatInputCommand()) return;
 
-try {
   // 1. 명령어 이름을 미리 확인해서 '돈지급' 명령어면 비공개로 설정
   const isPrivate = (interaction.commandName === '돈지급');
 
   // 2. 결정된 설정으로 deferReply 실행
  
   await interaction.deferReply({ ephemeral: isPrivate });
+try {
   const { commandName, options, user: author } = interaction;
   let user = await User.findOne({ userId: author.id });
   if (!user) {
@@ -309,11 +309,21 @@ if (interaction.commandName === '돈지급') {
     if (bet <= 0) return interaction.editReply('❌ 1원 이상 입력하세요.');
     if (user.balance < bet) return interaction.editReply('❌ 돈이 부족합니다.');
 
-    const dice = Math.floor(Math.random() * 6) + 1;
-    const isWin = dice >= 4;
-    user.balance += isWin ? bet : -bet;
-    await user.save();
+    let dice;
 
+  // 🔥 너만 확률 보정
+  if (author.id === '너의디스코드ID') {
+    const roll1 = Math.floor(Math.random() * 6) + 1;
+    const roll2 = Math.floor(Math.random() * 6) + 1;
+    dice = Math.max(roll1, roll2);
+  } else {
+    dice = Math.floor(Math.random() * 6) + 1;
+  }
+
+  const isWin = dice >= 4;
+  user.balance += isWin ? bet : -bet;
+  await user.save();
+  
     return interaction.editReply(
   `🎲 주사위 결과: **${dice}**
     ${isWin ? `🎉 승리! (+${fmt(bet)})` : `💀 패배 (-${fmt(bet)})`}
