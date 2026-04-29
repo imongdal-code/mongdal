@@ -43,7 +43,7 @@ client.on('interactionCreate', async (interaction) => {
   if (interaction.isButton()) {
   try {
     // 🔥 중복 응답 방지 + 실패 방지
-    await interaction.deferUpdate().catch(() => {});
+    await interaction.deferReply({ ephemeral: true });
 
     const data = interaction.customId.split('_');
     const commandType = data[0];
