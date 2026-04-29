@@ -210,7 +210,10 @@ try {
     const m = String(kst.getMonth() + 1).padStart(2, '0');
     const d = String(kst.getDate()).padStart(2, '0');
 
-    return `${y}-${m}-${d}`;
+    return {
+    date: `${y}-${m}-${d}`,
+    dayOfWeek: kst.getDay() // 0=일, 2=화, 5=금
+  };
   }
   // 💰 잔액
   if (commandName === '잔액') {
@@ -220,21 +223,32 @@ try {
   // 💸 돈줘
 
 if (commandName === '돈줘') {
-  const today = getKSTDate();
+  const { date, dayOfWeek } = getKSTDate();
 
   if (user.lastClaim && !/^\d{4}-\d{2}-\d{2}$/.test(user.lastClaim)) {
     user.lastClaim = null;
   }
 
-  if (user.lastClaim === today) {
+  if (user.lastClaim === date) {
     return interaction.editReply('⏳ 오늘 지원금은 이미 받으셨습니다! (KST 기준)');
   }
 
-  user.balance += 100000;
-  user.lastClaim = today;
+  let amount = 100000;
+
+  // 🔥 화요일(2), 금요일(5) 2배
+  if (dayOfWeek === 2 || dayOfWeek === 5) {
+    amount *= 2;
+  }
+
+  user.balance += amount;
+  user.lastClaim = date;
   await user.save();
 
-  return interaction.editReply(`💰 지원금 **${fmt(100000)}** 지급 완료되었습니다!`);
+  let msg = `💰 지원금 **${fmt(amount)}** 지급 완료되었습니다!`;
+
+  if (dayOfWeek === 2 || dayOfWeek === 5) {
+    msg += '\n🎉 화/금 보너스 2배 지급!';
+  }
 }
 
    // 💸 돈 지급 (나만 가능)
