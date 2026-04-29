@@ -34,8 +34,16 @@ client.once('ready', () => {
   console.log(`✅ 로그인됨: ${client.user.tag}`);
 });
 const fmt = (n) => `${n.toLocaleString('ko-KR')}원`;
+const handled = new Set();
 // 🎮 명령어 처리
 client.on('interactionCreate', async (interaction) => {
+
+    // =========================
+  // 🔥 0. 중복 실행 방지 (최상단)
+  // =========================
+  if (handled.has(interaction.id)) return;
+  handled.add(interaction.id);
+  setTimeout(() => handled.delete(interaction.id), 10000);
 
   // =========================
   // 🔹 1. 버튼 처리
@@ -193,9 +201,20 @@ ${result}
 
   // 2. 결정된 설정으로 deferReply 실행
  
+  // 🔥 deferReply 안전 처리 (핵심)
+try {
   await interaction.deferReply({ ephemeral: isPrivate });
+} catch (e) {
+  if (e.code === 10062) {
+    console.log('⚠️ 만료된 인터랙션 무시');
+    return;
+  }
+  throw e;
+}
+
 try {
   const { commandName, options, user: author } = interaction;
+
   let user = await User.findOne({ userId: author.id });
   if (!user) {
     user = new User({ userId: author.id });
@@ -211,9 +230,9 @@ try {
     const d = String(kst.getDate()).padStart(2, '0');
 
     return {
-    date: `${y}-${m}-${d}`,
-    dayOfWeek: kst.getDay() // 0=일, 2=화, 5=금
-  };
+      date: `${y}-${m}-${d}`,
+      dayOfWeek: kst.getDay()
+    };
   }
   // 💰 잔액
   if (commandName === '잔액') {
