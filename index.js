@@ -67,6 +67,9 @@ client.on('interactionCreate', async (interaction) => {
         if (isNaN(bet) || bet <= 0)
           return interaction.editReply({ content: '❌ 금액 오류', components: [] });
 
+        if (bet > 50000000)
+          return interaction.editReply({ content: '❌ 최대 배팅 금액은 50,000,000원입니다.', components: [] });
+
         if (user.balance < bet)
           return interaction.editReply({ content: '❌ 돈 부족', components: [] });
 
@@ -96,6 +99,9 @@ client.on('interactionCreate', async (interaction) => {
 
           let user = await User.findOne({ userId });
           if (!user) user = await new User({ userId }).save();
+          if (bet > 50000000) {
+              return interaction.editReply({ content: '❌ 최대 배팅 금액은 50,000,000원입니다.', components: [] });
+            }
 
           if (user.balance < bet) {
           return interaction.editReply({ content: '❌ 돈 부족', components: [] });
@@ -147,6 +153,8 @@ ${result}
 
         let user = await User.findOne({ userId });
         if (!user) user = await new User({ userId }).save();
+        if (bet > 50000000) {
+          return interaction.editReply({ content: '❌ 최대 배팅 금액은 50,000,000원입니다.', components: [] });}
 
         if (user.balance < bet)
           return interaction.editReply({ content: '❌ 돈 부족', components: [] });
@@ -321,6 +329,8 @@ if (interaction.commandName === '돈지급') {
   if (commandName === '주사위') {
     const bet = options.getInteger('금액');
     if (bet <= 0) return interaction.editReply('❌ 1원 이상 입력하세요.');
+    if (bet > 50000000)
+          return interaction.editReply({ content: '❌ 최대 배팅 금액은 50,000,000원입니다.', components: [] });
     if (user.balance < bet) return interaction.editReply('❌ 돈이 부족합니다.');
 
     let dice;
