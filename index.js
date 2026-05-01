@@ -159,32 +159,65 @@ ${result}
         if (user.balance < bet)
           return interaction.editReply({ content: '❌ 돈 부족', components: [] });
 
-        user.balance -= bet;
+         const rand = Math.random();
 
-        const symbols = ['🍒','🍋','🍇','💎','7️⃣','⭐'];
-        const pick = () => symbols[Math.floor(Math.random()*symbols.length)];
+  let multi = 0;
+  let symbol;
 
-        const s1 = pick(), s2 = pick(), s3 = pick();
+  if (rand < 0.6) {
+    // 💀 꽝 (60%)
+    multi = 0;
+    symbol = null;
+  } else if (rand < 0.85) {
+    // 🎉 2배 (25%)
+    multi = 2;
+    symbol = ['🍒','🍋','🍇'][Math.floor(Math.random()*3)];
+  } else if (rand < 0.95) {
+    // 💎 3배 (10%)
+    multi = 3;
+    symbol = '💎';
+  } else if (rand < 0.99) {
+    // 7️⃣ 5배 (4%)
+    multi = 5;
+    symbol = '7️⃣';
+  } else {
+    // ⭐ 10배 (1%)
+    multi = 10;
+    symbol = '⭐';
+  }
 
-        let multi = 0;
-        if (s1 === s2 && s2 === s3) {
-          if (s1 === '⭐') multi = 10;
-          else if (s1 === '7️⃣') multi = 5;
-          else if (s1 === '💎') multi = 3;
-          else multi = 2;
-        }
+  let s1, s2, s3;
 
-        const reward = bet * multi;
-        user.balance += reward;
-        await user.save();
+  if (multi === 0) {
+    // 꽝 → 랜덤으로 다 다르게
+    const symbols = ['🍒','🍋','🍇','💎','7️⃣','⭐'];
+    const pick = () => symbols[Math.floor(Math.random()*symbols.length)];
 
-        return interaction.editReply({
-         content: multi > 0
-           ? `🎰 [${s1}|${s2}|${s3}]\n🎉 ${multi}배 당첨! +${fmt(reward)}\n💰 ${fmt(user.balance)}`
-           : `🎰 [${s1}|${s2}|${s3}]\n💀 꽝 (-${fmt(bet)})\n💰 ${fmt(user.balance)}`,
-           components: []
-            });
-      }
+    s1 = pick();
+    s2 = pick();
+    s3 = pick();
+
+    // 혹시라도 3개 같아지면 깨기
+    if (s1 === s2 && s2 === s3) {
+      s3 = pick();
+    }
+
+    user.balance -= bet; // 💀 꽝이면 돈 차감
+  } else {
+    // 당첨 → 3개 동일
+    s1 = s2 = s3 = symbol;
+    user.balance += bet * multi;
+  }
+
+  await user.save();
+
+  return interaction.editReply({
+    content: multi > 0
+      ? `🎰 [${s1}|${s2}|${s3}]\n🎉 ${multi}배 당첨! +${fmt(bet * multi)}\n💰 ${fmt(user.balance)}`
+      : `🎰 [${s1}|${s2}|${s3}]\n💀 꽝 (-${fmt(bet)})\n💰 ${fmt(user.balance)}`,
+    components: []
+  });
+}
 
     } catch (err) {
       console.error(err);
